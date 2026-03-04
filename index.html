@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Master - Main</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-deep: #0f172a;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --coral-point: #f43f5e;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23f43f5e' fill-opacity='0.05' d='M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,149.3C672,149,768,203,864,218.7C960,235,1056,213,1152,181.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-position: bottom;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
+
+        .container { width: 100%; max-width: 420px; padding: 20px; }
+
+        .main-card {
+            background: var(--glass-bg);
+            padding: 40px 30px;
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px);
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 { font-size: 1.6rem; margin-bottom: 35px; letter-spacing: -1px; }
+
+        .section-label {
+            display: block; text-align: left; font-size: 0.75rem;
+            font-weight: 800; color: var(--coral-point);
+            margin: 0 0 12px 4px; text-transform: uppercase; letter-spacing: 2px;
+        }
+
+        .input-group { margin-bottom: 28px; }
+
+        .option-tabs {
+            display: flex; gap: 6px; background: rgba(0, 0, 0, 0.2);
+            padding: 5px; border-radius: 14px;
+        }
+
+        .opt-tab {
+            flex: 1; padding: 12px; border: none; border-radius: 10px;
+            background: transparent; color: var(--text-sub);
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+
+        .opt-tab.active { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+        .custom-select {
+            width: 100%; padding: 15px 20px;
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            font-size: 1rem; font-weight: 600; color: #ffffff;
+            appearance: none; background: rgba(0, 0, 0, 0.2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f43f5e'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 20px center;
+            background-size: 16px; cursor: pointer;
+        }
+
+        .custom-select option { background-color: #1e293b; color: white; }
+
+        .start-btn {
+            width: 100%; margin-top: 10px; padding: 18px;
+            background: var(--coral-point); color: white;
+            border: none; border-radius: 18px; font-weight: 800;
+            font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+        }
+
+        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(244, 63, 94, 0.3); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="main-card">
+        <h1>🎧 Listening Master</h1>
+
+        <div class="input-group">
+            <span class="section-label">Grade</span>
+            <div class="option-tabs">
+                <button class="opt-tab grade-btn active" onclick="selectItem('grade', 1, this)">고1</button>
+                <button class="opt-tab grade-btn" onclick="selectItem('grade', 2, this)">고2</button>
+                <button class="opt-tab grade-btn" onclick="selectItem('grade', 3, this)">고3</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <span class="section-label">Year</span>
+            <select id="yearSelect" class="custom-select">
+                <option value="2022">2022학년도</option>
+                <option value="2023">2023학년도</option>
+                <option value="2024">2024학년도</option>
+                <option value="2025">2025학년도</option>
+                <option value="2026">2026학년도</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <span class="section-label">Month</span>
+            <div class="option-tabs">
+                <button class="opt-tab month-btn active" onclick="selectItem('month', 3, this)">3월</button>
+                <button class="opt-tab month-btn" onclick="selectItem('month', 6, this)">6월</button>
+                <button class="opt-tab month-btn" onclick="selectItem('month', 9, this)">9월</button>
+                <button class="opt-tab month-btn" onclick="selectItem('month', 11, this)">11월</button>
+            </div>
+        </div>
+
+        <button class="start-btn" onclick="startLearning()">시작하기</button>
+    </div>
+</div>
+
+<script>
+    // 선택된 값을 저장할 변수 (기본값 설정)
+    let selectedGrade = 1;
+    let selectedMonth = 3;
+
+    // 학년 및 월 선택 함수
+    function selectItem(type, value, btn) {
+        // UI 업데이트: 다른 버튼의 active 제거하고 클릭한 버튼에 추가
+        document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 실제 데이터 변수 업데이트
+        if(type === 'grade') selectedGrade = value;
+        if(type === 'month') selectedMonth = value;
+    }
+
+    // 학습 시작 함수
+    function startLearning() {
+        const year = document.getElementById('yearSelect').value;
+        
+        // 폴더 구조: Grade_학번/연도/month_월/number.html
+        // 예시: Grade_1/2022/month_3/number.html
+        const targetPath = `Grade_${selectedGrade}/${year}/month_${selectedMonth}/number.html`;
+        
+        // 해당 경로로 이동
+        location.href = targetPath;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Master - Q1 Full</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root {
+            --bg: #0f172a; --card: rgba(255, 255, 255, 0.05);
+            --coral: #f43f5e; --text: #f1f5f9; --sub: #94a3b8; --green: #10b981;
+        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 440px; }
+        .step { display: none; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card { background: var(--card); padding: 30px 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); position: relative; text-align: center; }
+        .mark-svg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 240px; height: 240px; z-index: 10; display: none; }
+        
+        .options { list-style: none; padding: 0; margin-top: 25px; text-align: left; }
+        .opt { padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: 0.3s; font-size: 0.95rem; }
+        .opt.selected { border-color: var(--coral); background: rgba(244, 63, 94, 0.1); }
+        .opt.correct-highlight { border-color: var(--green); background: rgba(16, 185, 129, 0.1); color: var(--green); font-weight: bold; }
+
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .word-card { background: var(--card); padding: 18px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; cursor: pointer; font-weight: 600; min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .pineapple { font-size: 1.5rem; background: rgba(252, 211, 77, 0.05); }
+
+        .blank { display: inline-block; min-width: 40px; color: transparent; border-bottom: 2.5px solid var(--coral); margin: 0 3px; cursor: pointer; transition: 0.4s; }
+        .blank.revealed { color: var(--coral); border-bottom-color: transparent; }
+
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 20px; background: var(--coral); color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
+        .btn-audio { background: #334155; margin-bottom: 15px; }
+        .trans { color: var(--sub); font-size: 0.85rem; margin-top: 25px; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <section id="step1" class="step active">
+        <button class="btn btn-audio" onclick="playFull()">🔊 문제 전체 듣기 시작</button>
+        <div class="glass-card">
+            <svg class="mark-svg" id="svgCircle" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="#f43f5e" stroke-width="8" fill="none" stroke-linecap="round" /></svg>
+            <svg class="mark-svg" id="svgSlash" viewBox="0 0 100 100"><line x1="20" y1="20" x2="80" y2="80" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" /></svg>
+            <h3 style="margin:0; color:var(--coral);">QUESTION 01</h3>
+            <p style="margin-top:15px; font-weight: 600;">다음을 듣고, 남자가 하는 말의 목적으로 가장 적절한 것을 고르시오.</p>
+            <ul class="options">
+                <li class="opt" onclick="selectOpt(1, this)">① 농구 리그 참가 등록 방법의 변경을 알리려고</li>
+                <li class="opt" onclick="selectOpt(2, this)">② 확정된 농구 리그 시합 일정을 발표하려고</li>
+                <li class="opt" onclick="selectOpt(3, this)">③ 농구 리그의 심판을 추가 모집하려고</li>
+                <li class="opt" onclick="selectOpt(4, this)">④ 농구 리그 경기 관람을 권장하려고</li>
+                <li class="opt" onclick="selectOpt(5, this)">⑤ 농구 리그 우승 상품을 안내하려고</li>
+            </ul>
+        </div>
+        <button class="btn" onclick="grade()">채점하기</button>
+    </section>
+
+    <section id="step2" class="step">
+        <h3 style="color:var(--coral); text-align: center;">Voca & Phrase</h3>
+        <div class="word-grid" id="wordGrid"></div>
+        <button class="btn" onclick="goStep(3)">받아쓰기 시작 (전체 본문)</button>
+    </section>
+
+    <section id="step3" class="step">
+        <div class="glass-card" id="dictCard" style="min-height: 250px;"></div>
+        <button class="btn btn-audio" onclick="playCurrent()">🔊 문장 다시 듣기</button>
+        <button class="btn" onclick="nextDict()">다음 문장</button>
+    </section>
+</div>
+
+<script>
+    let selectedNum = 0;
+    const correctNum = 1;
+    let currentIdx = 0;
+
+    // 본문 전체 (생략 없음)
+    const fullScript = "Good afternoon, everybody. This is Student President Sam Wilson. As you know, the lunch basketball league will begin soon. Many students are interested in joining the league and waiting for the sign-up sheet to be handed out at the gym. For easier access, we’ve decided to change the registration method. Instead of going to the gym to register, simply log into the school website and fill out the registration form online. Thank you for listening and let’s have a good league.";
+
+    // 숙어 포함 10개 단어장
+    const vocaData = [
+        ["President", "회장/대통령"], ["be interested in", "~에 관심이 있다"], ["join", "참여하다/가입하다"],
+        ["waiting for", "~을 기다리다"], ["sign-up sheet", "신청서/등록지"], ["hand out", "나눠주다/배부하다"],
+        ["access", "접근/이용"], ["registration", "등록"], ["instead of", "~대신에"], ["fill out", "작성하다"]
+    ];
+
+    // 문장별 딕테이션 (전체 본문 순서대로)
+    const dictData = [
+        { eng: "Good afternoon, everybody. This is <span class='blank' onclick='rev(this)'>Student</span> <span class='blank' onclick='rev(this)'>President</span> Sam Wilson.", trans: "안녕 하십니까, 여러분. 학생 회장 Sam Wilson입니다." },
+        { eng: "As you know, the lunch <span class='blank' onclick='rev(this)'>basketball</span> <span class='blank' onclick='rev(this)'>league</span> will begin soon.", trans: "아시다시피, 점심 농구 리그가 곧 시작될 것입니다." },
+        { eng: "Many students are <span class='blank' onclick='rev(this)'>interested in</span> <span class='blank' onclick='rev(this)'>joining</span> the league.", trans: "많은 학생들이 리그에 참여하는 것에 관심을 가지고 있습니다." },
+        { eng: "and <span class='blank' onclick='rev(this)'>waiting for</span> the <span class='blank' onclick='rev(this)'>sign-up sheet</span> to be <span class='blank' onclick='rev(this)'>handed out</span> at the gym.", trans: "그리고 체육관에서 신청서가 배부되기를 기다리고 있습니다." },
+        { eng: "For <span class='blank' onclick='rev(this)'>easier</span> <span class='blank' onclick='rev(this)'>access</span>, we’ve decided to <span class='blank' onclick='rev(this)'>change</span> the method.", trans: "더 쉬운 이용을 위해, 우리는 방법을 변경하기로 결정했습니다." },
+        { eng: "Instead of <span class='blank' onclick='rev(this)'>going to</span> the gym to <span class='blank' onclick='rev(this)'>register</span>,", trans: "등록하러 체육관에 가는 대신에," },
+        { eng: "simply <span class='blank' onclick='rev(this)'>log into</span> the school website and <span class='blank' onclick='rev(this)'>fill out</span> the form online.", trans: "간단히 학교 웹사이트에 접속하여 온라인으로 신청서를 작성하십시오." },
+        { eng: "Thank you for listening and let’s <span class='blank' onclick='rev(this)'>have a good league</span>.", trans: "들어주셔서 감사합니다. 즐거운 리그를 만들어 봅시다." }
+    ];
+
+    window.onload = () => {
+        const grid = document.getElementById('wordGrid');
+        for (let i = 0; i < 10; i++) {
+            if (vocaData[i]) {
+                grid.innerHTML += `<div class="word-card" onclick="toggleV(this, '${vocaData[i][1]}')">${vocaData[i][0]}</div>`;
+            } else {
+                grid.innerHTML += `<div class="word-card pineapple">🍍</div>`;
+            }
+        }
+        loadDict();
+    };
+
+    function selectOpt(n, el) {
+        selectedNum = n;
+        document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function grade() {
+        if(!selectedNum) return alert("답을 선택해 주세요!");
+        const isCorrect = (selectedNum === correctNum);
+        document.getElementById(isCorrect ? 'svgCircle' : 'svgSlash').style.display = 'block';
+        if (!isCorrect) document.querySelectorAll('.opt')[correctNum - 1].classList.add('correct-highlight');
+        setTimeout(() => { if(confirm(isCorrect ? "정답입니다! 공부를 시작할까요?" : "틀렸습니다. 정답을 확인하고 공부할까요?")) goStep(2); }, 1500);
+    }
+
+    function toggleV(el, m) {
+        if(el.classList.contains('pineapple')) return;
+        if(!el.dataset.e) el.dataset.e = el.innerText;
+        el.innerText = (el.innerText === el.dataset.e) ? m : el.dataset.e;
+        el.style.color = (el.innerText === m) ? 'var(--coral)' : 'var(--text)';
+    }
+
+    function loadDict() {
+        const d = dictData[currentIdx];
+        document.getElementById('dictCard').innerHTML = `<p style="font-size:1.15rem; line-height:1.8; word-break:keep-all;">${d.eng}</p><p class="trans">${d.trans}</p>`;
+    }
+    function rev(el) { el.classList.add('revealed'); }
+
+    function playCurrent() {
+        speak(dictData[currentIdx].eng.replace(/<[^>]*>/g, ""));
+    }
+
+    function nextDict() {
+        if(currentIdx < dictData.length - 1) { currentIdx++; loadDict(); }
+        else { alert("1번 문항 전체 학습이 완료되었습니다!"); location.href="index.html"; }
+    }
+
+    function goStep(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+    }
+
+    function playFull() { speak(fullScript); }
+    function speak(t) {
+        window.speechSynthesis.cancel();
+        const m = new SpeechSynthesisUtterance(t);
+        m.lang = 'en-US'; m.rate = 0.8; // 학습용으로 약간 천천히
+        window.speechSynthesis.speak(m);
+    }
+</script>
+</body>
+</html>

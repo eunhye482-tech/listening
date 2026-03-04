@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Master - Question 14</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root {
+            --bg: #0f172a; --card: rgba(255, 255, 255, 0.05);
+            --coral: #f43f5e; --text: #f1f5f9; --sub: #94a3b8; --green: #10b981;
+        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 440px; }
+        .step { display: none; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-card { background: var(--card); padding: 30px 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); position: relative; text-align: center; }
+        .mark-svg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 220px; z-index: 10; display: none; }
+        .options { list-style: none; padding: 0; margin-top: 25px; text-align: left; }
+        .opt { padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: 0.3s; font-size: 0.95rem; }
+        .opt.selected { border-color: var(--coral); background: rgba(244, 63, 94, 0.1); }
+        .opt.correct-highlight { border-color: var(--green); background: rgba(16, 185, 129, 0.1); color: var(--green); font-weight: bold; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .word-card { background: var(--card); padding: 18px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; cursor: pointer; font-weight: 600; min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .blank { display: inline-block; min-width: 45px; color: transparent; border-bottom: 2.5px solid var(--coral); margin: 0 3px; cursor: pointer; transition: 0.4s; }
+        .blank.revealed { color: var(--coral); border-bottom-color: transparent; }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 20px; background: var(--coral); color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
+        .btn-audio { background: #334155; margin-bottom: 15px; }
+        .trans { color: var(--sub); font-size: 0.85rem; margin-top: 25px; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <section id="step1" class="step active">
+        <button class="btn btn-audio" onclick="playFull()">🔊 전체 듣기 (1.1x / 성별 반전)</button>
+        <div class="glass-card">
+            <svg class="mark-svg" id="svgCircle" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="#f43f5e" stroke-width="8" fill="none" stroke-linecap="round" /></svg>
+            <svg class="mark-svg" id="svgSlash" viewBox="0 0 100 100"><line x1="20" y1="20" x2="80" y2="80" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" /></svg>
+            <h3 style="margin-bottom:15px; color:var(--coral);">QUESTION 14</h3>
+            <p style="margin-top:0; font-weight: 600;">남자의 응답으로 가장 적절한 것을 고르시오.</p>
+            <ul class="options">
+                <li class="opt" onclick="selectOpt(1, this)">① Exactly. This is a best-selling novel.</li>
+                <li class="opt" onclick="selectOpt(2, this)">② Sounds cool. I’ll join a book club, too.</li>
+                <li class="opt" onclick="selectOpt(3, this)">③ Not really. Books make good presents.</li>
+                <li class="opt" onclick="selectOpt(4, this)">④ New year’s resolutions are hard to keep.</li>
+                <li class="opt" onclick="selectOpt(5, this)">⑤ Let’s buy some books for your book club.</li>
+            </ul>
+        </div>
+        <button class="btn" onclick="grade()">채점하기</button>
+    </section>
+
+    <section id="step2" class="step">
+        <h3 style="color:var(--coral); text-align: center;">Voca & Phrase</h3>
+        <div class="word-grid" id="wordGrid"></div>
+        <button class="btn" onclick="goStep(3)">받아쓰기 시작 (빈칸 강화)</button>
+    </section>
+
+    <section id="step3" class="step">
+        <div class="glass-card" id="dictCard" style="min-height: 250px;"></div>
+        <button class="btn btn-audio" onclick="playCurrent()">🔊 문장 다시 듣기</button>
+        <button class="btn" onclick="nextDict()">다음 문장</button>
+    </section>
+</div>
+
+<script>
+    let selectedNum = 0;
+    const correctNum = 2;
+    let currentIdx = 0;
+    let vF = null; let vM = null;
+
+    function setupVoices() {
+        const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+        vM = voices.find(v => v.name.includes('David') || v.name.toLowerCase().includes('male')) || voices[1] || voices[0];
+        vF = voices.find(v => (v.name.includes('Zira') || v.name.toLowerCase().includes('female')) && v !== vM) || voices[0];
+    }
+    if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = setupVoices; }
+    setupVoices();
+
+    const dictData = [
+        { eng: "W: <span class='blank' onclick='rev(this)'>Hi</span>, <span class='blank' onclick='rev(this)'>Tom</span>.", trans: "안녕, Tom." },
+        { eng: "M: Hi, Jane. <span class='blank' onclick='rev(this)'>What</span> <span class='blank' onclick='rev(this)'>are</span> you <span class='blank' onclick='rev(this)'>reading</span>?", trans: "안녕, Jane. 뭐 읽고 있어?" },
+        { eng: "W: It’s a <span class='blank' onclick='rev(this)'>novel</span> <span class='blank' onclick='rev(this)'>by</span> <span class='blank' onclick='rev(this)'>Charles Dickens</span>.", trans: "찰스 디킨스의 소설이야." },
+        { eng: "W: I’m going to <span class='blank' onclick='rev(this)'>talk about it</span> with my <span class='blank' onclick='rev(this)'>book club members</span> this <span class='blank' onclick='rev(this)'>weekend</span>.", trans: "이번 주말에 독서 모임 회원들과 그 책에 대해 이야기할 거야." },
+        { eng: "M: <span class='blank' onclick='rev(this)'>Oh</span>, you’re <span class='blank' onclick='rev(this)'>in</span> a <span class='blank' onclick='rev(this)'>book club</span>?", trans: "오, 너 독서 모임에 들어 있니?" },
+        { eng: "W: Yes. I <span class='blank' onclick='rev(this)'>joined it</span> a <span class='blank' onclick='rev(this)'>few months ago</span>.", trans: "응. 몇 달 전에 가입했어." },
+        { eng: "W: And <span class='blank' onclick='rev(this)'>now</span> I <span class='blank' onclick='rev(this)'>read</span> much <span class='blank' onclick='rev(this)'>more than before</span>.", trans: "그래서 이제 전보다 훨씬 더 많이 읽어." },
+        { eng: "M: <span class='blank' onclick='rev(this)'>Really</span>? Actually <span class='blank' onclick='rev(this)'>one of my</span> <span class='blank' onclick='rev(this)'>new year’s resolutions</span> is to read more books.", trans: "정말? 사실 내 새해 결심 중 하나가 책을 더 많이 읽는 것이거든." },
+        { eng: "W: Then, <span class='blank' onclick='rev(this)'>joining</span> a <span class='blank' onclick='rev(this)'>book club</span> will <span class='blank' onclick='rev(this)'>surely help</span>.", trans: "그러면 독서 모임에 가입하는 게 분명 도움이 될 거야." },
+        { eng: "M: Hmm.... <span class='blank' onclick='rev(this)'>What other benefits</span> can I <span class='blank' onclick='rev(this)'>get</span> if I <span class='blank' onclick='rev(this)'>join one</span>?", trans: "흠... 가입하면 그 밖에 어떤 장점들이 있을까?" },
+        { eng: "W: You can also <span class='blank' onclick='rev(this)'>share</span> your <span class='blank' onclick='rev(this)'>reading experiences</span> <span class='blank' onclick='rev(this)'>with others</span>.", trans: "다른 사람들과 독서 경험을 공유할 수도 있어." },
+        { eng: "M: <span class='blank' onclick='rev(this)'>That’d</span> <span class='blank' onclick='rev(this)'>be</span> <span class='blank' onclick='rev(this)'>nice</span>.", trans: "그거 좋겠네." },
+        { eng: "W: Yeah, it really <span class='blank' onclick='rev(this)'>broadens</span> your <span class='blank' onclick='rev(this)'>mind</span>. I <span class='blank' onclick='rev(this)'>really recommend</span> you to join a book club.", trans: "응, 정말 식견이 넓어져. 독서 모임에 가입하는 걸 정말 추천해." },
+        { eng: "M: <span class='blank' onclick='rev(this)'>Sounds cool</span>. <span class='blank' onclick='rev(this)'>I’ll join</span> a <span class='blank' onclick='rev(this)'>book club</span>, too.", trans: "멋진데. 나도 독서 모임에 가입해야겠다." }
+    ];
+
+    const vocaData = [
+        ["novel", "소설"], ["book club", "독서 모임"], ["member", "회원"], ["joined", "가입했다"],
+        ["resolution", "결심"], ["surely", "확실히/분명히"], ["benefit", "장점/이득"], ["experience", "경험"],
+        ["broadens", "넓히다"], ["recommend", "추천하다"]
+    ];
+
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        const uttr = new SpeechSynthesisUtterance(text.replace(/^[WM]:\s*/, ""));
+        uttr.lang = 'en-US'; uttr.rate = 1.1; 
+        if (text.trim().startsWith("W:")) { uttr.voice = vM; uttr.pitch = 0.8; }
+        else { uttr.voice = vF; uttr.pitch = 1.2; }
+        window.speechSynthesis.speak(uttr);
+    }
+
+    function playFull() {
+        window.speechSynthesis.cancel();
+        let i = 0;
+        function play() {
+            if (i < dictData.length) {
+                const line = dictData[i].eng.replace(/<[^>]*>/g, "");
+                const uttr = new SpeechSynthesisUtterance(line.replace(/^[WM]:\s*/, ""));
+                uttr.lang = 'en-US'; uttr.rate = 1.1;
+                if (line.trim().startsWith("W:")) { uttr.voice = vM; uttr.pitch = 0.8; }
+                else { uttr.voice = vF; uttr.pitch = 1.2; }
+                uttr.onend = () => { i++; play(); };
+                window.speechSynthesis.speak(uttr);
+            }
+        }
+        play();
+    }
+
+    window.onload = () => {
+        setupVoices();
+        const grid = document.getElementById('wordGrid');
+        for (let i = 0; i < 10; i++) {
+            if (vocaData[i]) grid.innerHTML += `<div class="word-card" onclick="toggleV(this, '${vocaData[i][1]}')">${vocaData[i][0]}</div>`;
+            else grid.innerHTML += `<div class="word-card">🍍</div>`;
+        }
+        loadDict();
+    };
+
+    function selectOpt(n, el) {
+        selectedNum = n;
+        document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function grade() {
+        if(!selectedNum) return alert("답을 선택해 주세요!");
+        const isCorrect = (selectedNum === correctNum);
+        document.getElementById(isCorrect ? 'svgCircle' : 'svgSlash').style.display = 'block';
+        if (!isCorrect) {
+            document.querySelectorAll('.opt')[correctNum - 1].classList.add('correct-highlight');
+            alert("틀렸습니다! 정답은 ②번입니다.");
+        }
+        setTimeout(() => { if(confirm("학습 단계로 이동할까요?")) goStep(2); }, 1500);
+    }
+
+    function toggleV(el, m) {
+        if(el.innerText === "🍍") return;
+        if(!el.dataset.e) el.dataset.e = el.innerText;
+        el.innerText = (el.innerText === el.dataset.e) ? m : el.dataset.e;
+        el.style.color = (el.innerText === m) ? 'var(--coral)' : 'var(--text)';
+    }
+
+    function loadDict() {
+        const d = dictData[currentIdx];
+        document.getElementById('dictCard').innerHTML = `<p style="font-size:1.15rem; line-height:1.8;">${d.eng}</p><p class="trans">${d.trans}</p>`;
+    }
+    function rev(el) { el.classList.add('revealed'); }
+    function playCurrent() { speak(dictData[currentIdx].eng.replace(/<[^>]*>/g, "")); }
+    function nextDict() {
+        if(currentIdx < dictData.length - 1) { currentIdx++; loadDict(); }
+        else { alert("14번 완료!"); location.href="listening.html"; }
+    }
+    function goStep(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Master - Q2 Final Fix</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        :root {
+            --bg: #0f172a; --card: rgba(255, 255, 255, 0.05);
+            --coral: #f43f5e; --text: #f1f5f9; --sub: #94a3b8; --green: #10b981;
+        }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 440px; }
+        .step { display: none; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-card { background: var(--card); padding: 30px 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); position: relative; text-align: center; }
+        .mark-svg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 220px; z-index: 10; display: none; }
+        .options { list-style: none; padding: 0; margin-top: 25px; text-align: left; }
+        .opt { padding: 16px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 16px; cursor: pointer; border: 1px solid transparent; transition: 0.3s; font-size: 0.95rem; }
+        .opt.selected { border-color: var(--coral); background: rgba(244, 63, 94, 0.1); }
+        .opt.correct-highlight { border-color: var(--green); background: rgba(16, 185, 129, 0.1); color: var(--green); font-weight: bold; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .word-card { background: var(--card); padding: 18px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); text-align: center; cursor: pointer; font-weight: 600; min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .blank { display: inline-block; min-width: 40px; color: transparent; border-bottom: 2.5px solid var(--coral); margin: 0 3px; cursor: pointer; transition: 0.4s; }
+        .blank.revealed { color: var(--coral); border-bottom-color: transparent; }
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 20px; background: var(--coral); color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; margin-top: 15px; }
+        .btn-audio { background: #334155; margin-bottom: 15px; }
+        .trans { color: var(--sub); font-size: 0.85rem; margin-top: 25px; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <section id="step1" class="step active">
+        <button class="btn btn-audio" onclick="playFull()">🔊 대화 전체 듣기 시작</button>
+        <div class="glass-card">
+            <svg class="mark-svg" id="svgCircle" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="#f43f5e" stroke-width="8" fill="none" stroke-linecap="round" /></svg>
+            <svg class="mark-svg" id="svgSlash" viewBox="0 0 100 100"><line x1="20" y1="20" x2="80" y2="80" stroke="#f43f5e" stroke-width="8" stroke-linecap="round" /></svg>
+            <h3 style="margin:0; color:var(--coral);">QUESTION 02</h3>
+            <p style="margin-top:15px; font-weight: 600;">대화를 듣고, 여자의 의견으로 가장 적절한 것을 고르시오.</p>
+            <ul class="options">
+                <li class="opt" onclick="selectOpt(1, this)">① 평소에 피부 상태를 잘 관찰할 필요가 있다.</li>
+                <li class="opt" onclick="selectOpt(2, this)">② 여드름을 치료하려면 피부과 병원에 가야 한다.</li>
+                <li class="opt" onclick="selectOpt(3, this)">③ 얼굴을 손으로 만지는 것은 얼굴 피부에 해롭다.</li>
+                <li class="opt" onclick="selectOpt(4, this)">④ 지성 피부를 가진 사람은 자주 세수를 해야 한다.</li>
+                <li class="opt" onclick="selectOpt(5, this)">⑤ 손을 자주 씻는 것은 감염병 예방에 도움이 된다.</li>
+            </ul>
+        </div>
+        <button class="btn" onclick="grade()">채점하기</button>
+    </section>
+
+    <section id="step2" class="step">
+        <h3 style="color:var(--coral); text-align: center;">Voca & Phrase</h3>
+        <div class="word-grid" id="wordGrid"></div>
+        <button class="btn" onclick="goStep(3)">받아쓰기 시작</button>
+    </section>
+
+    <section id="step3" class="step">
+        <div class="glass-card" id="dictCard" style="min-height: 250px;"></div>
+        <button class="btn btn-audio" onclick="playCurrent()">🔊 문장 다시 듣기</button>
+        <button class="btn" onclick="nextDict()">다음 문장</button>
+    </section>
+</div>
+
+<script>
+    let selectedNum = 0;
+    const correctNum = 3;
+    let currentIdx = 0;
+
+    let vF = null; // Female Voice
+    let vM = null; // Male Voice
+
+    function initVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) return;
+
+        // 영어 목소리 필터링
+        const en = voices.filter(v => v.lang.includes('en'));
+        
+        // 여성: 이름에 'Zira', 'Samantha' 또는 'Female' 단어 포함 우선
+        vF = en.find(v => v.name.includes('Zira') || v.name.includes('Samantha') || v.name.toLowerCase().includes('female')) || en[0];
+        
+        // 남성: 이름에 'David', 'Mark' 또는 'Male' 단어 포함 우선 (여성과 중복 방지)
+        vM = en.find(v => (v.name.includes('David') || v.name.includes('Mark') || v.name.toLowerCase().includes('male')) && v !== vF) || en[1] || en[0];
+        
+        console.log("Selected Female:", vF.name);
+        console.log("Selected Male:", vM.name);
+    }
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = initVoices;
+    }
+    initVoices();
+
+    const dictData = [
+        { eng: "W: Daniel, what are you doing in <span class='blank' onclick='rev(this)'>front of</span> the <span class='blank' onclick='rev(this)'>mirror</span>?", trans: "Daniel, 거울 앞에서 뭐 하고 있니?" },
+        { eng: "M: I have <span class='blank' onclick='rev(this)'>skin problems</span> these days.", trans: "요즘 피부에 문제가 좀 있어." },
+        { eng: "M: I’m trying to <span class='blank' onclick='rev(this)'>pop</span> these <span class='blank' onclick='rev(this)'>pimples</span> on my face.", trans: "얼굴에 난 이 여드름들을 짜려고 노력 중이야." },
+        { eng: "W: Pimples are really <span class='blank' onclick='rev(this)'>annoying</span>, but I wouldn’t <span class='blank' onclick='rev(this)'>do that</span>.", trans: "여드름은 정말 짜증나지만, 난 그렇게 하지 않을 거야." },
+        { eng: "M: Why not?", trans: "왜 안 되는데?" },
+        { eng: "W: When you pop them with your hands, you’re <span class='blank' onclick='rev(this)'>touching</span> your face.", trans: "손으로 그것들을 짤 때, 넌 네 얼굴을 만지고 있는 거야." },
+        { eng: "M: Are you <span class='blank' onclick='rev(this)'>saying that</span> I shouldn’t touch my face?", trans: "내가 얼굴을 만지면 안 된다는 말이니?" },
+        { eng: "W: Exactly. You know our hands are <span class='blank' onclick='rev(this)'>covered with</span> bacteria, right?", trans: "바로 그거야. 우리 손이 세균으로 뒤덮여 있다는 거 알지, 그렇지?" },
+        { eng: "W: You’ll be <span class='blank' onclick='rev(this)'>spreading</span> bacteria all over your face.", trans: "네 손으로 얼굴 전체에 세균을 퍼뜨리게 될 거야." },
+        { eng: "W: It could <span class='blank' onclick='rev(this)'>worsen</span> your skin problems.", trans: "그것이 네 피부 문제를 악화시킬 수 있어." },
+        { eng: "W: <span class='blank' onclick='rev(this)'>Touching</span> your face with your hands is <span class='blank' onclick='rev(this)'>bad for</span> your skin.", trans: "손으로 얼굴을 만지는 것은 피부에 나빠." },
+        { eng: "M: Okay, <span class='blank' onclick='rev(this)'>I got it</span>.", trans: "알겠어, 이해했어." }
+    ];
+
+    const vocaData = [
+        ["skin problem", "피부 문제"], ["pop", "짜다"], ["pimple", "여드름"], ["annoying", "짜증나는"],
+        ["touch", "만지다"], ["be covered with", "~로 뒤덮이다"], ["bacteria", "세균"], ["spread", "퍼뜨리다"],
+        ["worsen", "악화시키다"], ["bad for", "~에 나쁜"]
+    ];
+
+    function speak(text) {
+        window.speechSynthesis.cancel();
+        const uttr = new SpeechSynthesisUtterance(text.replace(/^[WM]:\s*/, ""));
+        uttr.lang = 'en-US';
+        uttr.rate = 0.95; // 속도 약간 올림
+
+        if (text.startsWith("W:")) {
+            uttr.voice = vF;
+            uttr.pitch = 1.3; // 여자 톤 확실히 높임
+        } else {
+            uttr.voice = vM;
+            uttr.pitch = 0.8; // 남자 톤 확실히 낮춤
+        }
+        window.speechSynthesis.speak(uttr);
+    }
+
+    function playFull() {
+        window.speechSynthesis.cancel();
+        let i = 0;
+        function play() {
+            if (i < dictData.length) {
+                const line = dictData[i].eng.replace(/<[^>]*>/g, "");
+                const uttr = new SpeechSynthesisUtterance(line.replace(/^[WM]:\s*/, ""));
+                uttr.lang = 'en-US';
+                uttr.rate = 0.95;
+                if (line.startsWith("W:")) { uttr.voice = vF; uttr.pitch = 1.3; }
+                else { uttr.voice = vM; uttr.pitch = 0.8; }
+                uttr.onend = () => { i++; play(); };
+                window.speechSynthesis.speak(uttr);
+            }
+        }
+        play();
+    }
+
+    window.onload = () => {
+        initVoices();
+        const grid = document.getElementById('wordGrid');
+        for (let i = 0; i < 10; i++) {
+            if (vocaData[i]) grid.innerHTML += `<div class="word-card" onclick="toggleV(this, '${vocaData[i][1]}')">${vocaData[i][0]}</div>`;
+            else grid.innerHTML += `<div class="word-card">🍍</div>`;
+        }
+        loadDict();
+    };
+
+    function selectOpt(n, el) {
+        selectedNum = n;
+        document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function grade() {
+        if(!selectedNum) return alert("답을 선택해 주세요!");
+        const isCorrect = (selectedNum === correctNum);
+        document.getElementById(isCorrect ? 'svgCircle' : 'svgSlash').style.display = 'block';
+        if (!isCorrect) document.querySelectorAll('.opt')[correctNum - 1].classList.add('correct-highlight');
+        setTimeout(() => { if(confirm("다음 단계로 이동할까요?")) goStep(2); }, 1500);
+    }
+
+    function toggleV(el, m) {
+        if(el.innerText === "🍍") return;
+        if(!el.dataset.e) el.dataset.e = el.innerText;
+        el.innerText = (el.innerText === el.dataset.e) ? m : el.dataset.e;
+        el.style.color = (el.innerText === m) ? 'var(--coral)' : 'var(--text)';
+    }
+
+    function loadDict() {
+        const d = dictData[currentIdx];
+        document.getElementById('dictCard').innerHTML = `<p style="font-size:1.15rem; line-height:1.8;">${d.eng}</p><p class="trans">${d.trans}</p>`;
+    }
+    function rev(el) { el.classList.add('revealed'); }
+    function playCurrent() { speak(dictData[currentIdx].eng.replace(/<[^>]*>/g, "")); }
+    function nextDict() {
+        if(currentIdx < dictData.length - 1) { currentIdx++; loadDict(); }
+        else { alert("2번 완료!"); location.href="listening.html"; }
+    }
+    function goStep(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+    }
+</script>
+</body>
+</html>
