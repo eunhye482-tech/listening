@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 15번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2022년 9월 고1 - 15번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="05.mp3"></audio>
+        <div id="step1" class="step active">
+            <p><strong>15. 다음 상황 설명을 듣고, Ms. Olson이 Steven에게 할 말로 가장 적절한 것을 고르시오. [3점]</strong></p>
+            <div class="option" onclick="sel(this, 1)">① You can come see me any time you want.</div>
+            <div class="option" onclick="sel(this, 2)">② I'm happy to hear that you've met the CEO.</div>
+            <div class="option" onclick="sel(this, 3)">③ Why do you want to run a gaming company?</div>
+            <div class="option" onclick="sel(this, 4)">④ How about going to your role model's book-signing?</div>
+            <div class="option" onclick="sel(this, 5)">⑤ You should buy more books written by your role model.</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(4)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Steven is a high school student and Ms. Olson is a <span class="blank" onclick="v(this)">career</span> <span class="blank" onclick="v(this)">counselor</span> at his school. 
+                Steven has <span class="blank" onclick="v(this)">much</span> <span class="blank" onclick="v(this)">interest</span> in the <span class="blank" onclick="v(this)">video</span> <span class="blank" onclick="v(this)">game</span> industry. 
+                A few days ago, Ms. Olson <span class="blank" onclick="v(this)">recommended</span> a <span class="blank" onclick="v(this)">book</span> written by a <span class="blank" onclick="v(this)">CEO</span> who runs a famous gaming company. 
+                After <span class="blank" onclick="v(this)">reading</span> the book, Steven <span class="blank" onclick="v(this)">told</span> <span class="blank" onclick="v(this)">her</span> that the CEO is his <span class="blank" onclick="v(this)">role</span> <span class="blank" onclick="v(this)">model</span>. 
+                This morning, Ms. Olson <span class="blank" onclick="v(this)">hears</span> the <span class="blank" onclick="v(this)">news</span> that the CEO is going to have a <span class="blank" onclick="v(this)">book</span> <span class="blank" onclick="v(this)">signing</span> at a bookstore nearby. 
+                She <span class="blank" onclick="v(this)">thinks</span> Steven would <span class="blank" onclick="v(this)">love</span> <span class="blank" onclick="v(this)">to</span> <span class="blank" onclick="v(this)">meet</span> his role model in <span class="blank" onclick="v(this)">person</span>. 
+                So, Ms. Olson wants to tell Steven that he should <span class="blank" onclick="v(this)">go</span> <span class="blank" onclick="v(this)">see</span> the CEO at the <span class="blank" onclick="v(this)">event</span>.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+            <a href="16.html" style="text-decoration:none"><button class="nav-btn">16번 문제로 이동</button></a>
+        </div>
+    </div>
+</div>
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; document.getElementById('next-to-dict').style.display = "block"; }
+        else { res.innerText = "다시 생각해보세요. ❌"; res.style.color = "red"; }
+    }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+    const words = [{w:"Career counselor",m:"진로 상담사"},{w:"Recommended",m:"추천했다"},{w:"Role model",m:"롤 모델"},{w:"Book signing",m:"저자 사인회"},{w:"In person",m:"직접"}];
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>
