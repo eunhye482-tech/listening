@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 17번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 6월 고2 - 17번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="17.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>17. 언급된 동물이 아닌 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① skunk</div>
+            <div class="option" onclick="sel(this, 2)">② lizard</div>
+            <div class="option" onclick="sel(this, 3)">③ chameleon</div>
+            <div class="option" onclick="sel(this, 4)">④ frog</div>
+            <div class="option" onclick="sel(this, 5)">⑤ zebra</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(5)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Hello, students! In our <span class="blank" onclick="v(this)">last</span> lesson, we <span class="blank" onclick="v(this)">learned</span> how animals <span class="blank" onclick="v(this)">use</span> their <span class="blank" onclick="v(this)">senses</span> to find food. Today, we'll talk about <span class="blank" onclick="v(this)">ways</span> some animals <span class="blank" onclick="v(this)">defend</span> themselves from <span class="blank" onclick="v(this)">enemies</span>. First, one of the most <span class="blank" onclick="v(this)">well-known</span> of these animals is the <span class="blank" onclick="v(this)">skunk</span>. Skunks <span class="blank" onclick="v(this)">spray</span> a <span class="blank" onclick="v(this)">bad-smelling</span> <span class="blank" onclick="v(this)">liquid</span> to keep enemies away. Skunk spray does not <span class="blank" onclick="v(this)">cause</span> any <span class="blank" onclick="v(this)">lasting</span> <span class="blank" onclick="v(this)">damage</span>, though its <span class="blank" onclick="v(this)">smell</span> is <span class="blank" onclick="v(this)">hard</span> to remove. Second, <span class="blank" onclick="v(this)">chameleons</span> change the <span class="blank" onclick="v(this)">color</span> of their <span class="blank" onclick="v(this)">skin</span> to <span class="blank" onclick="v(this)">match</span> their surroundings, making them <span class="blank" onclick="v(this)">hard</span> to <span class="blank" onclick="v(this)">spot</span>. That's one <span class="blank" onclick="v(this)">clever</span> way to hide from their enemies! Next, we have <span class="blank" onclick="v(this)">frogs</span>. By <span class="blank" onclick="v(this)">making</span> themselves look <span class="blank" onclick="v(this)">bigger</span>, they <span class="blank" onclick="v(this)">appear</span> more <span class="blank" onclick="v(this)">threatening</span>. Another animal that uses its body for survival is the <span class="blank" onclick="v(this)">lizard</span>. Interestingly, lizards can <span class="blank" onclick="v(this)">cut</span> <span class="blank" onclick="v(this)">off</span> their own <span class="blank" onclick="v(this)">tails</span> to escape. But don't <span class="blank" onclick="v(this)">worry</span> the tail <span class="blank" onclick="v(this)">eventually</span> <span class="blank" onclick="v(this)">grows</span> <span class="blank" onclick="v(this)">back</span>!
+            </div>
+            
+            <div id="wGrid" class="word-grid"></div>
+            <button class="nav-btn" onclick="location.reload()">처음으로 돌아가기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { 
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); 
+        el.classList.add('selected'); selectedNum = n; 
+    }
+    
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { 
+            res.innerText = "정답입니다! 🎉"; 
+            res.style.color = "blue"; 
+            document.getElementById('next-to-dict').style.display = "block"; 
+        } else { 
+            res.innerText = "다시 한번 들어보세요. ❌"; 
+            res.style.color = "red"; 
+        }
+    }
+
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Bad-smelling", m:"고약한 냄새가 나는"},
+        {w:"Surroundings", m:"주변 환경"},
+        {w:"Threatening", m:"위협적인"},
+        {w:"Survival", m:"생존"},
+        {w:"Eventually", m:"결국"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

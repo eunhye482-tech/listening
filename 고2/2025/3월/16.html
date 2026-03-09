@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 16-17번</title>
+    <style>/* CSS는 동일 */
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 3월 고2 - 16, 17번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="16.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>16. 여자가 하는 말의 주제로 가장 적절한 것은?</strong></p>
+            <div class="option" onclick="sel(this, 1)">① technological innovations in modern museums</div>
+            <button class="nav-btn" onclick="checkAnswer(2)">채점하기</button>
+            <button class="nav-btn" style="background:var(--lavender-dark);" onclick="go(2)">다음 문제(17번)로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <p><strong>17. 언급된 기술이 아닌 것은?</strong></p>
+            <div class="option" onclick="sel2(this, 1)">① virtual reality</div>
+            <div class="option" onclick="sel2(this, 2)">② 3D animation</div>
+            <div class="option" onclick="sel2(this, 3)">③ laser projection</div>
+            <div class="option" onclick="sel2(this, 4)">④ holographic imaging</div>
+            <div class="option" onclick="sel2(this, 5)">⑤ 3D printing</div>
+            <button class="nav-btn" onclick="checkAnswer2(4)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(3)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step3" class="step">
+            <div class="dict-box">
+                W: Hello, students. Have any of you <span class="blank" onclick="v(this)">visited</span> a <span class="blank" onclick="v(this)">museum</span> recently? If so, you may have <span class="blank" onclick="v(this)">noticed</span> some <span class="blank" onclick="v(this)">remarkable</span> <span class="blank" onclick="v(this)">changes</span> taking place. Today, I'd like to share some <span class="blank" onclick="v(this)">insights</span> about the changes <span class="blank" onclick="v(this)">happening</span> in museums. Now, traditional museums are being <span class="blank" onclick="v(this)">transformed</span> by modern <span class="blank" onclick="v(this)">technologies</span>. The first technology I want to <span class="blank" onclick="v(this)">introduce</span> is <span class="blank" onclick="v(this)">virtual</span> <span class="blank" onclick="v(this)">reality</span>. Museums around the world are <span class="blank" onclick="v(this)">adopting</span> virtual reality to change how visitors <span class="blank" onclick="v(this)">interact</span> with historical objects. For <span class="blank" onclick="v(this)">instance</span>, visitors can now <span class="blank" onclick="v(this)">explore</span> ancient buildings as if they were <span class="blank" onclick="v(this)">real</span>. Another technology being used in museums is <span class="blank" onclick="v(this)">3D</span> <span class="blank" onclick="v(this)">animation</span>. This brings historical <span class="blank" onclick="v(this)">scenes</span> to life, showing how people lived in the past. Animated <span class="blank" onclick="v(this)">displays</span> allow visitors to experience historical events in a more <span class="blank" onclick="v(this)">engaging</span> way. Also, <span class="blank" onclick="v(this)">laser</span> <span class="blank" onclick="v(this)">projection</span> creates <span class="blank" onclick="v(this)">dynamic</span> effects on gallery walls. Using this technology, museums can <span class="blank" onclick="v(this)">highlight</span> specific artworks and create <span class="blank" onclick="v(this)">fascinating</span> environments that <span class="blank" onclick="v(this)">enhance</span> the viewing experience. Finally, <span class="blank" onclick="v(this)">3D</span> <span class="blank" onclick="v(this)">printing</span> has <span class="blank" onclick="v(this)">opened</span> up new <span class="blank" onclick="v(this)">possibilities</span> for museums. This technology makes it possible to display <span class="blank" onclick="v(this)">accurate</span> <span class="blank" onclick="v(this)">copies</span> of delicate or rare items that cannot be <span class="blank" onclick="v(this)">exposed</span> to the public. These technological <span class="blank" onclick="v(this)">innovations</span> are making museum collections more <span class="blank" onclick="v(this)">accessible</span>, interactive, and engaging than ever before.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 스크립트 로직 (sel, checkAnswer 등은 기존과 동일)
+    const audio = document.getElementById('myAudio'); let selectedNum = 0; let selectedNum2 = 0;
+    function sel(el, n) { document.querySelectorAll('#step1 .option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+    function sel2(el, n) { document.querySelectorAll('#step2 .option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum2 = n; }
+    function checkAnswer(ans) { if(selectedNum === ans) alert("정답!"); else alert("오답!"); }
+    function checkAnswer2(ans) { if(selectedNum2 === ans) { alert("정답!"); document.getElementById('next-to-dict').style.display = "block"; } else alert("오답!"); }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Remarkable", m:"놀라운/주목할 만한"},
+        {w:"Transform", m:"변형시키다"},
+        {w:"Interact", m:"상호작용하다"},
+        {w:"Engaging", m:"매력적인/흥미를 끄는"},
+        {w:"Innovation", m:"혁신"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

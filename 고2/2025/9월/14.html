@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 14번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 9월 고2 - 14번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="14.mp3"></audio>
+        <div id="step1" class="step active">
+            <p><strong>14. 대화를 듣고, 남자의 마지막 말에 대한 여자의 응답으로 가장 적절한 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① Sorry. I don't have any large sizes left.</div>
+            <div class="option" onclick="sel(this, 2)">② Great. Let's register for the tournament.</div>
+            <div class="option" onclick="sel(this, 3)">③ Thank you. I hope I can change the size.</div>
+            <div class="option" onclick="sel(this, 4)">④ Excellent. I'd like to buy that uniform, too.</div>
+            <div class="option" onclick="sel(this, 5)">⑤ Don't worry. I'm sure you'll win the matches.</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(3)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Hi, Chris. Are you <span class="blank" onclick="v(this)">on</span> your <span class="blank" onclick="v(this)">way</span> to <span class="blank" onclick="v(this)">practice</span>? M: Yeah. How's your <span class="blank" onclick="v(this)">training</span> going? W: It's going well. Have you <span class="blank" onclick="v(this)">ordered</span> our team <span class="blank" onclick="v(this)">uniforms</span> yet?<br>
+                M: Of course. They will have <span class="blank" onclick="v(this)">each</span> of our <span class="blank" onclick="v(this)">names</span> on them. W: Does that mean it's <span class="blank" onclick="v(this)">not</span> <span class="blank" onclick="v(this)">possible</span> to <span class="blank" onclick="v(this)">change</span> <span class="blank" onclick="v(this)">sizes</span> anymore?<br>
+                M: I'm <span class="blank" onclick="v(this)">not</span> <span class="blank" onclick="v(this)">sure</span>, but you cannot change it <span class="blank" onclick="v(this)">once</span> they've printed your name. Do you want a <span class="blank" onclick="v(this)">different</span> size? W: Yes. I want a <span class="blank" onclick="v(this)">large</span> instead.<br>
+                M: Why? W: I think a <span class="blank" onclick="v(this)">bigger</span> uniform would be more <span class="blank" onclick="v(this)">comfortable</span> while playing. M: Then, I'll <span class="blank" onclick="v(this)">check</span> <span class="blank" onclick="v(this)">whether</span> they've <span class="blank" onclick="v(this)">already</span> <span class="blank" onclick="v(this)">printed</span> your name.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+            <a href="15.html" style="text-decoration:none"><button class="nav-btn">다음 문제(15번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+    function checkAnswer(ans) { const res = document.getElementById('grade-res'); if(selectedNum === ans) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; document.getElementById('next-to-dict').style.display = "block"; } else { res.innerText = "다시 한번 들어보세요. ❌"; res.style.color = "red"; } }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+    const words = [{w:"Uniform", m:"유니폼/제복"}, {w:"Possible", m:"가능한"}, {w:"Large", m:"큰"}, {w:"Comfortable", m:"편안한"}, {w:"Already", m:"이미"}];
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) { const d = document.createElement('div'); d.className = 'word-item'; d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`; grid.appendChild(d); }
+</script>
+</body>
+</html>

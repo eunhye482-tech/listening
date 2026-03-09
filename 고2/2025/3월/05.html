@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 05번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 3월 고2 - 05번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="05.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>5. 대화를 듣고, 여자가 할 일로 가장 적절한 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① 프랑스 학생들에게 인사법 가르쳐 주기</div>
+            <div class="option" onclick="sel(this, 2)">② 전통 공예 세션의 파트너 명단 작성하기</div>
+            <div class="option" onclick="sel(this, 3)">③ 기념품으로 줄 열쇠고리 주문하기</div>
+            <div class="option" onclick="sel(this, 4)">④ 환영 연설문을 작성하고 연습하기</div>
+            <div class="option" onclick="sel(this, 5)">⑤ 도착한 열쇠고리 포장하기</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(2)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <div class="dict-box">
+                M: Ms. Anderson, are we <span class="blank" onclick="v(this)">all</span> <span class="blank" onclick="v(this)">set</span> for the <span class="blank" onclick="v(this)">culture</span> <span class="blank" onclick="v(this)">exchange</span> program with the French students?<br>
+                W: It’s going well, Mr. Grant. Do you want to <span class="blank" onclick="v(this)">go</span> <span class="blank" onclick="v(this)">over</span> what we’ve done <span class="blank" onclick="v(this)">so</span> <span class="blank" onclick="v(this)">far</span>?<br>
+                M: Sure. I’ve been <span class="blank" onclick="v(this)">teaching</span> our students some basic French <span class="blank" onclick="v(this)">greetings</span>, and they’ve been practicing their <span class="blank" onclick="v(this)">welcome</span> <span class="blank" onclick="v(this)">speech</span>.<br>
+                W: That sounds nice. Your <span class="blank" onclick="v(this)">efforts</span> will definitely help the exchange students <span class="blank" onclick="v(this)">feel</span> <span class="blank" onclick="v(this)">welcome</span>. I’ve <span class="blank" onclick="v(this)">prepared</span> all the traditional <span class="blank" onclick="v(this)">craft</span> materials for them.<br>
+                M: It would be great if the students could <span class="blank" onclick="v(this)">work</span> <span class="blank" onclick="v(this)">in</span> <span class="blank" onclick="v(this)">pairs</span> for the traditional crafts session.<br>
+                W: Exactly. I’ve already <span class="blank" onclick="v(this)">made</span> a <span class="blank" onclick="v(this)">list</span> of pairs. I paired one student from our school with a student from France.<br>
+                M: Good. And I’ve <span class="blank" onclick="v(this)">ordered</span> <span class="blank" onclick="v(this)">keyrings</span> to use as <span class="blank" onclick="v(this)">souvenirs</span>. They should <span class="blank" onclick="v(this)">arrive</span> this afternoon.<br>
+                W: Let me know if you <span class="blank" onclick="v(this)">need</span> <span class="blank" onclick="v(this)">any</span> help.<br>
+                M: Actually, there is one thing. Could you <span class="blank" onclick="v(this)">wrap</span> the keyrings when they arrive? I think I won’t have time for that.<br>
+                W: Of course, I’d be <span class="blank" onclick="v(this)">happy</span> to help you with that.
+            </div>
+            
+            <div id="wGrid" class="word-grid"></div>
+            <a href="6.html" style="text-decoration:none"><button class="nav-btn">다음 문제(6번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { 
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); 
+        el.classList.add('selected'); selectedNum = n; 
+    }
+    
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { 
+            res.innerText = "정답입니다! 🎉"; 
+            res.style.color = "blue"; 
+            document.getElementById('next-to-dict').style.display = "block"; 
+        } else { 
+            res.innerText = "다시 한번 들어보세요. ❌"; 
+            res.style.color = "red"; 
+        }
+    }
+
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Exchange", m:"교환/교류"},
+        {w:"Greeting", m:"인사"},
+        {w:"Material", m:"재료"},
+        {w:"Souvenir", m:"기념품"},
+        {w:"Wrap", m:"포장하다"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 17번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 9월 고2 - 17번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="17.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>17. 언급된 동물이 아닌 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① beavers</div>
+            <div class="option" onclick="sel(this, 2)">② ants</div>
+            <div class="option" onclick="sel(this, 3)">③ spiders</div>
+            <div class="option" onclick="sel(this, 4)">④ bees</div>
+            <div class="option" onclick="sel(this, 5)">⑤ birds</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(4)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Hello, students. As you know, animals build many <span class="blank" onclick="v(this)">different</span> <span class="blank" onclick="v(this)">structures</span> in the natural world. Today, we'll talk about the different <span class="blank" onclick="v(this)">functions</span> that these structures have. First, an important function of animal-built structures is to <span class="blank" onclick="v(this)">provide</span> <span class="blank" onclick="v(this)">protection</span> from predators. For <span class="blank" onclick="v(this)">example</span>, <span class="blank" onclick="v(this)">beavers</span> build dams to create ponds where they can <span class="blank" onclick="v(this)">construct</span> their homes. These structures provide a <span class="blank" onclick="v(this)">shelter</span> from <span class="blank" onclick="v(this)">predators</span>. Next, animal structures can also play a role in <span class="blank" onclick="v(this)">transportation</span>. Some species of <span class="blank" onclick="v(this)">ants</span> use their own bodies to create <span class="blank" onclick="v(this)">bridges</span>. These bridges provide a path over obstacles and allow them to search for food at an <span class="blank" onclick="v(this)">increased</span> speed. In addition, animal structures can <span class="blank" onclick="v(this)">serve</span> as <span class="blank" onclick="v(this)">traps</span>. This can be observed in web-building <span class="blank" onclick="v(this)">spiders</span>, who weave elaborate webs of <span class="blank" onclick="v(this)">sticky</span> spider silk that capture prey. Finally, animal structures can serve as a <span class="blank" onclick="v(this)">means</span> of <span class="blank" onclick="v(this)">attracting</span> <span class="blank" onclick="v(this)">mates</span>. During mating season, some species of <span class="blank" onclick="v(this)">birds</span> collect small branches, leaves, and colorful objects to create structures that attract the attention of females.
+            </div>
+            
+            <div id="wGrid" class="word-grid"></div>
+            <button class="nav-btn" onclick="location.reload()">처음으로 돌아가기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { 
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); 
+        el.classList.add('selected'); selectedNum = n; 
+    }
+    
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { 
+            res.innerText = "정답입니다! 🎉"; 
+            res.style.color = "blue"; 
+            document.getElementById('next-to-dict').style.display = "block"; 
+        } else { 
+            res.innerText = "다시 한번 들어보세요. ❌"; 
+            res.style.color = "red"; 
+        }
+    }
+
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Structure", m:"구조물"},
+        {w:"Predator", m:"포식자"},
+        {w:"Transportation", m:"운송/이동"},
+        {w:"Increased", m:"증가된/빨라진"},
+        {w:"Attract", m:"끌어들이다"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

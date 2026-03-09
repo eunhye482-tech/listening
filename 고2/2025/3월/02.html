@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 02번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 3월 고2 - 02번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="02.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>2. 대화를 듣고, 여자의 의견으로 가장 적절한 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① 벽지의 색을 정할 때 공간의 크기를 고려하는 것이 중요하다.</div>
+            <div class="option" onclick="sel(this, 2)">② 가구 배치는 동선을 방해하지 않도록 계획해야 한다.</div>
+            <div class="option" onclick="sel(this, 3)">③ 집안의 채광 정도에 따라 조명의 밝기를 조절해야 한다.</div>
+            <div class="option" onclick="sel(this, 4)">④ 인테리어 소품은 최소화하여 개방감을 주는 것이 좋다.</div>
+            <div class="option" onclick="sel(this, 5)">⑤ 벽지의 재질은 청소와 유지 관리가 용이한 것이어야 한다.</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(1)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Mr. Johnson, we’re almost <span class="blank" onclick="v(this)">done</span> with the major <span class="blank" onclick="v(this)">decisions</span> about the interior design of your house. Now you just need to <span class="blank" onclick="v(this)">choose</span> the color for your living room <span class="blank" onclick="v(this)">wall</span> paper.<br>
+                M: That’s right. I’ve seen the color <span class="blank" onclick="v(this)">samples</span> you’ve sent, but I can’t <span class="blank" onclick="v(this)">decide</span> which one to choose. Do you have any advice?<br>
+                W: Well, there’s one <span class="blank" onclick="v(this)">important</span> thing you need to <span class="blank" onclick="v(this)">consider</span> when you choose a wall color.<br>
+                M: One important thing? What is it?<br>
+                W: If you go with <span class="blank" onclick="v(this)">light</span> colors, they will make the <span class="blank" onclick="v(this)">space</span> look <span class="blank" onclick="v(this)">larger</span> and more open.<br>
+                M: Interesting. So, dark colors make a space <span class="blank" onclick="v(this)">appear</span> smaller?<br>
+                W: Exactly. This is because light colors <span class="blank" onclick="v(this)">reflect</span> natural light and make a space appear larger to the eyes.<br>
+                M: Hmm... Since my living room is a bit small, I’ll go with <span class="blank" onclick="v(this)">white</span>.<br>
+                W: That’s a great choice! It’s always important to consider the <span class="blank" onclick="v(this)">size</span> of the space when choosing a wall paper color. A light color like white will definitely <span class="blank" onclick="v(this)">create</span> a sense of <span class="blank" onclick="v(this)">openness</span> in your living room.<br>
+                M: Thank you for helping me.
+            </div>
+            
+            <div style="margin-top:15px; font-size:12px; font-weight:bold; color:var(--lavender-dark);">[Grammar Hints: 1. Relative Clauses, 2. Comparative Adjectives, 3. Conditional Sentences]</div>
+            
+            <div id="wGrid" class="word-grid"></div>
+            
+            <a href="3.html" style="text-decoration:none"><button class="nav-btn">다음 문제(3번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { 
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); 
+        el.classList.add('selected'); selectedNum = n; 
+    }
+    
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { 
+            res.innerText = "정답입니다! 🎉"; 
+            res.style.color = "blue"; 
+            document.getElementById('next-to-dict').style.display = "block"; 
+        } else { 
+            res.innerText = "다시 한번 들어보세요. ❌"; 
+            res.style.color = "red"; 
+        }
+    }
+
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Interior", m:"실내/인테리어"},
+        {w:"Decision", m:"결정"},
+        {w:"Consider", m:"고려하다"},
+        {w:"Reflect", m:"반사하다"},
+        {w:"Openness", m:"개방감"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

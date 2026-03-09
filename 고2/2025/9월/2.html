@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 02번</title>
+    <style>/* 스타일 동일 */
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 9월 고2 - 02번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="02.mp3"></audio>
+        <div id="step1" class="step active">
+            <p><strong>2. 대화를 듣고, 남자의 의견으로 가장 적절한 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① 냉장고 문을 자주 여닫으면 전기가 낭비된다.</div>
+            <div class="option" onclick="sel(this, 2)">② 과도한 육류 섭취는 영양 불균형의 원인이 된다.</div>
+            <div class="option" onclick="sel(this, 3)">③ 한 번 해동한 음식은 다시 냉동하지 않는 것이 좋다.</div>
+            <div class="option" onclick="sel(this, 4)">④ 음식을 밀폐해서 보관하면 세균 증식을 억제할 수 있다.</div>
+            <div class="option" onclick="sel(this, 5)">⑤ 오랫동안 냉동 보관한 음식을 먹는 것은 해로울 수 있다.</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(5)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Honey, how about having beef for dinner tonight? We have some in the <span class="blank" onclick="v(this)">freezer</span>.<br>
+                M: Great idea, but that beef has been in the freezer for <span class="blank" onclick="v(this)">so</span> <span class="blank" onclick="v(this)">long</span>. We'd <span class="blank" onclick="v(this)">better</span> <span class="blank" onclick="v(this)">not</span> eat it. W: Well, it's been <span class="blank" onclick="v(this)">frozen</span> this whole time, so it should be fine.<br>
+                M: Not really. Eating food that's been <span class="blank" onclick="v(this)">kept</span> <span class="blank" onclick="v(this)">frozen</span> for a long time can be <span class="blank" onclick="v(this)">harmful</span>.<br>
+                W: Really? I thought it would be alright. M: Well, while freezing can <span class="blank" onclick="v(this)">slow</span> <span class="blank" onclick="v(this)">bacteria</span> <span class="blank" onclick="v(this)">growth</span> in food, it cannot <span class="blank" onclick="v(this)">completely</span> <span class="blank" onclick="v(this)">stop</span> them from growing.<br>
+                W: Hmm, that makes sense. M: Besides, if we <span class="blank" onclick="v(this)">open</span> the freezer often, the <span class="blank" onclick="v(this)">temperature</span> inside doesn't <span class="blank" onclick="v(this)">stay</span> <span class="blank" onclick="v(this)">constant</span>.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+            <a href="3.html" style="text-decoration:none"><button class="nav-btn">다음 문제(3번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+    function checkAnswer(ans) { const res = document.getElementById('grade-res'); if(selectedNum === ans) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; document.getElementById('next-to-dict').style.display = "block"; } else { res.innerText = "다시 한번 들어보세요. ❌"; res.style.color = "red"; } }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+    const words = [{w:"Freezer", m:"냉동고"}, {w:"Harmful", m:"해로운"}, {w:"Bacteria", m:"박테리아/세균"}, {w:"Completely", m:"완전히"}, {w:"Constant", m:"지속적인/일정한"}];
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) { const d = document.createElement('div'); d.className = 'word-item'; d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`; grid.appendChild(d); }
+</script>
+</body>
+</html>

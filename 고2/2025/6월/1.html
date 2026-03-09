@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 01번</title>
+    <style>
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 6월 고2 - 01번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="01.mp3"></audio>
+        <div id="step1" class="step active">
+            <p><strong>1. 다음을 듣고, 여자가 하는 말의 목적으로 가장 적절한 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① 보건실 이용에 대해 안내하려고</div>
+            <div class="option" onclick="sel(this, 2)">② 구급약 사용 방법을 설명하려고</div>
+            <div class="option" onclick="sel(this, 3)">③ 보건실 환경 개선을 건의하려고</div>
+            <div class="option" onclick="sel(this, 4)">④ 학생 식당 위치를 알려주려고</div>
+            <div class="option" onclick="sel(this, 5)">⑤ 학사 일정 변경을 공지하려고</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(1)">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Good morning, students! This is your <span class="blank" onclick="v(this)">school</span> <span class="blank" onclick="v(this)">nurse</span>, Emma Lee. What do you think of high school life <span class="blank" onclick="v(this)">so</span> <span class="blank" onclick="v(this)">far</span>? Since this is your first <span class="blank" onclick="v(this)">semester</span>, I'm going to give you some <span class="blank" onclick="v(this)">guidelines</span> for <span class="blank" onclick="v(this)">visiting</span> our school <span class="blank" onclick="v(this)">clinic</span>. First, the clinic is <span class="blank" onclick="v(this)">located</span> on the <span class="blank" onclick="v(this)">third</span> floor next to the school cafeteria. And it's <span class="blank" onclick="v(this)">open</span> Monday through Friday, from 9 a.m. to 4 p.m. I'll be there to <span class="blank" onclick="v(this)">help</span> you with <span class="blank" onclick="v(this)">anything</span> you need like <span class="blank" onclick="v(this)">medicine</span> or some <span class="blank" onclick="v(this)">treatment</span>. Lastly, when you are in the clinic, please be <span class="blank" onclick="v(this)">careful</span> not to <span class="blank" onclick="v(this)">disturb</span> the other students. I hope you have a <span class="blank" onclick="v(this)">safe</span> and <span class="blank" onclick="v(this)">healthy</span> school life. Thank you.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+            <a href="2.html" style="text-decoration:none"><button class="nav-btn">다음 문제(2번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); selectedNum = n; }
+    function checkAnswer(ans) { const res = document.getElementById('grade-res'); if(selectedNum === ans) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; document.getElementById('next-to-dict').style.display = "block"; } else { res.innerText = "다시 한번 들어보세요. ❌"; res.style.color = "red"; } }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+    const words = [{w:"Semester", m:"학기"}, {w:"Guideline", m:"지침/가이드라인"}, {w:"Clinic", m:"진료실/보건실"}, {w:"Treatment", m:"치료"}, {w:"Disturb", m:"방해하다"}];
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) { const d = document.createElement('div'); d.className = 'word-item'; d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`; grid.appendChild(d); }
+</script>
+</body>
+</html>

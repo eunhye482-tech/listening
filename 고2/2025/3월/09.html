@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 09번</title>
+    <style>
+        /* CSS는 7, 8번과 동일 */
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 3월 고2 - 09번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="09.mp3"></audio>
+        
+        <div id="step1" class="step active">
+            <p><strong>9. Sunnyville Pet Fair에 관한 다음 내용을 듣고, 일치하지 않는 것을 고르시오.</strong></p>
+            <div class="option" onclick="sel(this, 1)">① 4월 19일 토요일에 개최된다.</div>
+            <div class="option" onclick="sel(this, 2)">② 반려견 훈련 프로그램이 진행된다.</div>
+            <div class="option" onclick="sel(this, 3)">③ 수제 장난감을 판매하는 부스가 있다.</div>
+            <div class="option" onclick="sel(this, 4)">④ 수익금 전액은 지역 동물 보호소에 기부된다.</div>
+            <div class="option" onclick="sel(this, 5)">⑤ 티켓은 현장에서 직접 구매할 수 있다.</div>
+            <div id="grade-res" class="result-msg"></div>
+            <button class="nav-btn" onclick="checkAnswer(5)">채점하기</button> <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(2)">받아쓰기 단계로 →</button>
+        </div>
+
+        <div id="step2" class="step">
+            <div class="dict-box">
+                W: Hello, <span class="blank" onclick="v(this)">listeners</span>. I'm Hannah Carter from the Sunnyville Pet Fair <span class="blank" onclick="v(this)">organizing</span> <span class="blank" onclick="v(this)">committee</span>. I'm <span class="blank" onclick="v(this)">excited</span> to <span class="blank" onclick="v(this)">announce</span> that this year's pet fair will <span class="blank" onclick="v(this)">take</span> <span class="blank" onclick="v(this)">place</span> on Saturday, <span class="blank" onclick="v(this)">April</span> <span class="blank" onclick="v(this)">19th</span>, at the Sunnyville Community Park. During the event, there will be a dog <span class="blank" onclick="v(this)">training</span> program by Mike Harris, a well-known pet <span class="blank" onclick="v(this)">behavior</span> <span class="blank" onclick="v(this)">expert</span>. We will also <span class="blank" onclick="v(this)">host</span> a pet <span class="blank" onclick="v(this)">costume</span> <span class="blank" onclick="v(this)">contest</span>, where pets can <span class="blank" onclick="v(this)">show</span> <span class="blank" onclick="v(this)">off</span> their best <span class="blank" onclick="v(this)">outfits</span> and <span class="blank" onclick="v(this)">compete</span> for <span class="blank" onclick="v(this)">prizes</span>. Additionally, there will be <span class="blank" onclick="v(this)">booths</span> selling healthy <span class="blank" onclick="v(this)">snacks</span> and <span class="blank" onclick="v(this)">handmade</span> <span class="blank" onclick="v(this)">toys</span> for your pets. Tickets <span class="blank" onclick="v(this)">cost</span> $5 per person, and all the <span class="blank" onclick="v(this)">profits</span> will be <span class="blank" onclick="v(this)">donated</span> to local animal <span class="blank" onclick="v(this)">shelters</span>. Please <span class="blank" onclick="v(this)">note</span> that tickets are <span class="blank" onclick="v(this)">available</span> online <span class="blank" onclick="v(this)">only</span>, so be <span class="blank" onclick="v(this)">sure</span> to <span class="blank" onclick="v(this)">book</span> in <span class="blank" onclick="v(this)">advance</span>. If you're a pet lover, don't miss out on this exciting event!
+            </div>
+            
+            <div id="wGrid" class="word-grid"></div>
+            <a href="10.html" style="text-decoration:none"><button class="nav-btn">다음 문제(10번)로 이동</button></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById('myAudio'); let selectedNum = 0;
+    function setSpeed(s) { audio.playbackRate = s; }
+    function sel(el, n) { 
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected')); 
+        el.classList.add('selected'); selectedNum = n; 
+    }
+    
+    function checkAnswer(ans) {
+        const res = document.getElementById('grade-res');
+        if(selectedNum === ans) { 
+            res.innerText = "정답입니다! 🎉"; 
+            res.style.color = "blue"; 
+            document.getElementById('next-to-dict').style.display = "block"; 
+        } else { 
+            res.innerText = "다시 한번 확인해 보세요. ❌"; 
+            res.style.color = "red"; 
+        }
+    }
+
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+
+    const words = [
+        {w:"Committee", m:"위원회"},
+        {w:"Announce", m:"발표/공지하다"},
+        {w:"Behavior", m:"행동"},
+        {w:"Donate", m:"기부하다"},
+        {w:"In advance", m:"미리/사전에"}
+    ];
+    
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) {
+        const d = document.createElement('div'); d.className = 'word-item';
+        d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`;
+        grid.appendChild(d);
+    }
+</script>
+</body>
+</html>

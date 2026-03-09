@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어듣기 16-17번</title>
+    <style>/* 스타일 동일 */
+        :root { --lavender: #967EBD; --beige: #F5F5DC; --white: #FFFFFF; --lavender-dark: #7776B3; }
+        body { margin: 0; background-color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .app-screen { width: 360px; height: 640px; background: var(--beige); overflow: hidden; display: flex; flex-direction: column; position: relative; border-radius: 20px; }
+        .header { background: var(--lavender); color: white; padding: 20px 15px; text-align: center; font-weight: bold; }
+        .content { padding: 15px; flex: 1; overflow-y: auto; }
+        .step { display: none; } .step.active { display: block; }
+        .audio-ctrl { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .speed-btn { background: var(--lavender); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        audio { width: 100%; margin-bottom: 15px; }
+        .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+        .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
+        .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
+        .blank.show { color: #d32f2f; border-bottom: none; }
+        .word-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .word-item { background: #eee; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .nav-btn { background: var(--lavender); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="app-screen">
+    <div class="header">2025년 10월 고2 - 16, 17번</div>
+    <div class="content">
+        <div class="audio-ctrl">
+            <button class="speed-btn" onclick="setSpeed(1.0)">1.0x</button>
+            <button class="speed-btn" onclick="setSpeed(1.2)">1.2x</button>
+            <button class="speed-btn" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <audio id="myAudio" controls src="16.mp3"></audio>
+        <div id="step1" class="step active">
+            <p><strong>16. 여자가 하는 말의 주제로 가장 적절한 것은?</strong></p>
+            <div class="option" onclick="sel1(this, 1)">① natural ingredients used to keep food fresh</div>
+            <div class="option" onclick="sel1(this, 2)">② historical reasons for the invention of refrigerators</div>
+            <div class="option" onclick="sel1(this, 3)">③ health benefits of adding natural spices to dishes</div>
+            <div class="option" onclick="sel1(this, 4)">④ cultural differences in using various food ingredients</div>
+            <div class="option" onclick="sel1(this, 5)">⑤ various ways of removing unpleasant smells from meat</div>
+            <div id="grade-res-1" class="result-msg"></div>
+            <button class="nav-btn" onclick="check1()">채점하기</button>
+            <button class="nav-btn" style="background:var(--lavender-dark);" onclick="go(2)">다음 문제(17번)로 →</button>
+        </div>
+        <div id="step2" class="step">
+            <p><strong>17. 언급된 식재료가 아닌 것은? (17.mp3)</strong></p>
+            <audio id="myAudio2" controls src="17.mp3" style="width:100%; margin-bottom:10px;"></audio>
+            <div class="option" onclick="sel2(this, 1)">① black pepper</div>
+            <div class="option" onclick="sel2(this, 2)">② cinnamon</div>
+            <div class="option" onclick="sel2(this, 3)">③ mustard seeds</div>
+            <div class="option" onclick="sel2(this, 4)">④ garlic</div>
+            <div class="option" onclick="sel2(this, 5)">⑤ chili peppers</div>
+            <div id="grade-res-2" class="result-msg"></div>
+            <button class="nav-btn" onclick="check2()">채점하기</button>
+            <button id="next-to-dict" class="nav-btn" style="display:none; background:var(--lavender-dark);" onclick="go(3)">받아쓰기 단계로 →</button>
+        </div>
+        <div id="step3" class="step">
+            <div class="dict-box">
+                W: Hello, everyone. You're <span class="blank" onclick="v(this)">listening</span> to The <span class="blank" onclick="v(this)">Food</span> Story Show, and I'm your host, Elena Wilson.<br>
+                Last week, we <span class="blank" onclick="v(this)">explored</span> some of the world's most <span class="blank" onclick="v(this)">interesting</span> traditional <span class="blank" onclick="v(this)">dishes</span>.<br>
+                Today, I'm going to <span class="blank" onclick="v(this)">introduce</span> some <span class="blank" onclick="v(this)">natural</span> ingredients people <span class="blank" onclick="v(this)">used</span> to keep food <span class="blank" onclick="v(this)">fresh</span> <span class="blank" onclick="v(this)">before</span> the <span class="blank" onclick="v(this)">invention</span> of refrigerators.<br>
+                The <span class="blank" onclick="v(this)">first</span> is <span class="blank" onclick="v(this)">black</span> <span class="blank" onclick="v(this)">pepper</span>. In India and Europe, it was used to slow down the meat from <span class="blank" onclick="v(this)">going</span> <span class="blank" onclick="v(this)">bad</span> and to <span class="blank" onclick="v(this)">cover</span> unpleasant <span class="blank" onclick="v(this)">smells</span>.<br>
+                Next, <span class="blank" onclick="v(this)">cinnamon</span>, which comes from tree <span class="blank" onclick="v(this)">bark</span>, was also widely used for <span class="blank" onclick="v(this)">preserving</span> food.<br>
+                Since this ingredient <span class="blank" onclick="v(this)">contains</span> oils that <span class="blank" onclick="v(this)">kill</span> <span class="blank" onclick="v(this)">germs</span>, people added it to stews and <span class="blank" onclick="v(this)">baked</span> food to help them <span class="blank" onclick="v(this)">last</span> longer.<br>
+                Then we have <span class="blank" onclick="v(this)">mustard</span> <span class="blank" onclick="v(this)">seeds</span>. You've <span class="blank" onclick="v(this)">probably</span> seen them in pickled food.<br>
+                Thanks to their <span class="blank" onclick="v(this)">food-preserving</span> effects, <span class="blank" onclick="v(this)">vegetables</span> stayed <span class="blank" onclick="v(this)">fresh</span> for months.<br>
+                And finally, there were dried <span class="blank" onclick="v(this)">chili</span> <span class="blank" onclick="v(this)">peppers</span>. They not only <span class="blank" onclick="v(this)">slowed</span> bacterial growth but also <span class="blank" onclick="v(this)">added</span> a <span class="blank" onclick="v(this)">bright</span> color and a spicy <span class="blank" onclick="v(this)">flavor</span>.
+            </div>
+            <div id="wGrid" class="word-grid"></div>
+            <button class="nav-btn" onclick="location.reload()">처음으로 돌아가기</button>
+        </div>
+    </div>
+</div>
+<script>
+    const audio1 = document.getElementById('myAudio'); const audio2 = document.getElementById('myAudio2'); let s1=0, s2=0;
+    function setSpeed(s) { audio1.playbackRate = s; audio2.playbackRate = s; }
+    function sel1(el, n) { document.querySelectorAll('#step1 .option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); s1 = n; }
+    function sel2(el, n) { document.querySelectorAll('#step2 .option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); s2 = n; }
+    function check1() { const res = document.getElementById('grade-res-1'); if(s1 === 1) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; } else { res.innerText = "다시 한번 주제를 생각해보세요. ❌"; res.style.color = "red"; } }
+    function check2() { const res = document.getElementById('grade-res-2'); if(s2 === 4) { res.innerText = "정답입니다! 🎉"; res.style.color = "blue"; document.getElementById('next-to-dict').style.display = "block"; } else { res.innerText = "오답입니다. ❌"; res.style.color = "red"; } }
+    function go(n) { document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
+    function v(el) { el.classList.add('show'); }
+    const words = [{w:"Natural", m:"자연의/천연의"}, {w:"Invention", m:"발명"}, {w:"Unpleasant", m:"불쾌한"}, {w:"Preserve", m:"보존하다"}, {w:"Bacterial", m:"박테리아의/세균의"}];
+    const grid = document.getElementById('wGrid');
+    for(let i=0; i<10; i++) { const d = document.createElement('div'); d.className = 'word-item'; d.innerText = words[i] ? `${i+1}. ${words[i].w}: ${words[i].m}` : `${i+1}. 🍎 🍎 🍎`; grid.appendChild(d); }
+</script>
+</body>
+</html>
