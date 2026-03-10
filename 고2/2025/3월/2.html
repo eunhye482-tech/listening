@@ -16,7 +16,7 @@
         audio { width: 100%; margin-bottom: 15px; }
         .option { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 10px; cursor: pointer; font-size: 14px; }
         .option.selected { border: 2px solid var(--lavender); background: #f3f0f9; }
-        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; }
+        .result-msg { font-weight: bold; margin: 10px 0; text-align: center; min-height: 20px; }
         .dict-box { line-height: 2.2; font-size: 14.5px; background: white; padding: 15px; border-radius: 15px; border: 1px solid var(--lavender); }
         .blank { border-bottom: 2px solid var(--lavender); color: transparent; cursor: pointer; padding: 0 3px; font-weight: bold; transition: 0.2s; display: inline-block; min-width: 35px; text-align: center; }
         .blank.show { color: #d32f2f; border-bottom: none; }
@@ -50,22 +50,21 @@
 
         <div id="step2" class="step">
             <div class="dict-box">
-                W: Mr. Johnson, we’re almost <span class="blank" onclick="v(this)">done</span> with the major <span class="blank" onclick="v(this)">decisions</span> about the interior design of your house. Now you just need to <span class="blank" onclick="v(this)">choose</span> the color for your living room <span class="blank" onclick="v(this)">wall</span> paper.<br>
-                M: That’s right. I’ve seen the color <span class="blank" onclick="v(this)">samples</span> you’ve sent, but I can’t <span class="blank" onclick="v(this)">decide</span> which one to choose. Do you have any advice?<br>
-                W: Well, there’s one <span class="blank" onclick="v(this)">important</span> thing you need to <span class="blank" onclick="v(this)">consider</span> when you choose a wall color.<br>
+                W: Mr. Johnson, we're almost <span class="blank" onclick="v(this)">done</span> with the major <span class="blank" onclick="v(this)">decisions</span> about the interior design of your house.<br>
+                Now you just need to <span class="blank" onclick="v(this)">choose</span> the color for your living room <span class="blank" onclick="v(this)">wall</span> paper.<br>
+                M: That's right. I've seen the color <span class="blank" onclick="v(this)">samples</span> you've sent, but I can't <span class="blank" onclick="v(this)">decide</span> which one to choose. Do you have any advice?<br>
+                W: Well, there's one <span class="blank" onclick="v(this)">important</span> thing you need to <span class="blank" onclick="v(this)">consider</span> when you choose a wall color.<br>
                 M: One important thing? What is it?<br>
                 W: If you go with <span class="blank" onclick="v(this)">light</span> colors, they will make the <span class="blank" onclick="v(this)">space</span> look <span class="blank" onclick="v(this)">larger</span> and more open.<br>
                 M: Interesting. So, dark colors make a space <span class="blank" onclick="v(this)">appear</span> smaller?<br>
                 W: Exactly. This is because light colors <span class="blank" onclick="v(this)">reflect</span> natural light and make a space appear larger to the eyes.<br>
-                M: Hmm... Since my living room is a bit small, I’ll go with <span class="blank" onclick="v(this)">white</span>.<br>
-                W: That’s a great choice! It’s always important to consider the <span class="blank" onclick="v(this)">size</span> of the space when choosing a wall paper color. A light color like white will definitely <span class="blank" onclick="v(this)">create</span> a sense of <span class="blank" onclick="v(this)">openness</span> in your living room.<br>
+                M: Hmm... Since my living room is a bit small, I'll go with <span class="blank" onclick="v(this)">white</span>.<br>
+                W: That's a great choice! It's always important to consider the <span class="blank" onclick="v(this)">size</span> of the space when choosing a wall paper color.<br>
+                A light color like white will definitely <span class="blank" onclick="v(this)">create</span> a sense of <span class="blank" onclick="v(this)">openness</span> in your living room.<br>
                 M: Thank you for helping me.
             </div>
             
-            <div style="margin-top:15px; font-size:12px; font-weight:bold; color:var(--lavender-dark);">[Grammar Hints: 1. Relative Clauses, 2. Comparative Adjectives, 3. Conditional Sentences]</div>
-            
             <div id="wGrid" class="word-grid"></div>
-            
             <a href="3.html" style="text-decoration:none"><button class="nav-btn">다음 문제(3번)로 이동</button></a>
         </div>
     </div>
